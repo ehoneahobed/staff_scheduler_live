@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { startOfDay, endOfDay, parseISO } from "date-fns";
 
 // GET /api/shifts - Fetch shifts with optional filters
 export async function GET(request: Request) {
@@ -16,13 +17,25 @@ export async function GET(request: Request) {
     const endDate = searchParams.get("endDate");
     const userId = searchParams.get("userId");
 
+    // Convert dates to UTC while preserving the local date
+    const start = startDate ? startOfDay(parseISO(startDate)) : null;
+    const end = endDate ? endOfDay(parseISO(endDate || startDate)) : null;
+
+    console.log("Fetching shifts with params:", {
+      startDate,
+      endDate,
+      userId,
+      startOfDay: start,
+      endOfDay: end,
+    });
+
     const shifts = await prisma.shift.findMany({
       where: {
-        ...(startDate && endDate
+        ...(start && end
           ? {
               startTime: {
-                gte: new Date(startDate),
-                lte: new Date(endDate),
+                gte: start,
+                lte: end,
               },
             }
           : {}),
@@ -48,6 +61,8 @@ export async function GET(request: Request) {
       },
     });
 
+    console.log("Found shifts:", shifts);
+
     return NextResponse.json(shifts);
   } catch (error) {
     console.error("Error fetching shifts:", error);
@@ -67,14 +82,20 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    console.log("Creating shift with data:", body);
+
     const { startTime, endTime, type, userId, notes } = body;
 
-    // Validate manager role
-    const manager = await prisma.user.findUnique({
+    // Convert the local datetime strings to Date objects
+    const shiftStartTime = parseISO(startTime);
+    const shiftEndTime = parseISO(endTime);
+
+    // Get the current user to check if they're a manager
+    const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email! },
     });
 
-    if (manager?.role !== "MANAGER") {
+    if (currentUser?.role !== "MANAGER") {
       return NextResponse.json(
         { error: "Only managers can create shifts" },
         { status: 403 }
@@ -83,12 +104,12 @@ export async function POST(request: Request) {
 
     const shift = await prisma.shift.create({
       data: {
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        startTime: shiftStartTime,
+        endTime: shiftEndTime,
         type,
         notes,
         userId,
-        createdById: manager.id,
+        createdById: currentUser.id,
       },
       include: {
         user: {
@@ -100,6 +121,8 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    console.log("Created shift:", shift);
 
     return NextResponse.json(shift);
   } catch (error) {

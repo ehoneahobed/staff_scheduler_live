@@ -1,48 +1,48 @@
 # Shift Management Implementation Plan
 
-## 1. Database Schema Setup
-- Create Shift model in Prisma
-- Create necessary relations with User model
-- Define shift types/categories
-- Add relevant fields (start time, end time, status, etc.)
+## 1. Staff Management (Next Steps)
+- Create staff registration page
+  - Form with name, email, password fields
+  - Role selection (STAFF/MANAGER)
+  - Email verification setup
+- Create staff listing page for managers
+  - Table view of all staff members
+  - Ability to edit roles
+  - Ability to deactivate accounts
+- Add staff API endpoints
+  - POST /api/staff/register
+  - GET /api/staff
+  - PUT /api/staff/{id}
+  - DELETE /api/staff/{id}
 
-## 2. Backend API Routes
-- POST /api/shifts - Create new shifts
-- GET /api/shifts - Fetch shifts (with filtering)
-- PUT /api/shifts/{id} - Update shifts
-- DELETE /api/shifts/{id} - Delete shifts
-- GET /api/users - Fetch available staff members
+## 2. Testing Setup
+- Create test manager account
+- Create multiple test staff accounts
+- Test shift creation workflow:
+  1. Login as manager
+  2. Create shifts
+  3. Assign to different staff members
+  4. View shifts by date
+  5. Edit/delete shifts
 
-## 3. Frontend Components
-- Calendar view component
-- Shift creation modal/form
-- Shift details view
-- Staff selection dropdown
-- Time/date picker components
+## 3. Existing Features (Implemented)
+- Database Schema Setup ✓
+- Backend API Routes ✓
+- Frontend Components ✓
+- Core Features ✓
+- UI/UX Considerations ✓
 
-## 4. Core Features
-- View shifts in calendar format
-- Create new shifts
-- Assign staff to shifts
-- Edit existing shifts
-- Delete shifts
-- Filter shifts by date range
-- Filter shifts by staff member
-
-## 5. UI/UX Considerations
-- Color coding for different shift types
-- Clear indication of assigned/unassigned shifts
-- Responsive design for mobile/desktop
-- Loading states
-- Error handling
-- Success notifications
+## 4. Future Enhancements
+- Shift swapping between staff
+- Leave management
+- Attendance tracking
+- Notifications system
+- Reports and analytics
 
 ## Implementation Order:
-1. Set up database schema
-2. Create basic API endpoints
-3. Build calendar view component
-4. Implement shift creation
-5. Add staff assignment
-6. Add edit/delete functionality
-7. Implement filtering
-8. Add polish (notifications, loading states, etc.) 
+1. Create staff registration page
+2. Implement staff listing page
+3. Add staff management API endpoints
+4. Create test accounts
+5. Test full workflow
+6. Add any missing features or fixes 

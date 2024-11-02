@@ -63,6 +63,8 @@ model User {
   leaveRequests LeaveRequest[]
   attendances   Attendance[]
   createdShifts Shift[] @relation("CreatedShifts")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 }
 
 model Shift {
